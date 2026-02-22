@@ -5,7 +5,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace [PROJECT_NAME].[CREATE_DIRECTORY]
+namespace [PROJECT_NAME][NAMESPACE]
 {
     using System;
 
@@ -36,7 +36,7 @@ public static global::System.Resources.ResourceManager ResourceManager
     {
         if (object.ReferenceEquals(resourceMan, null))
         {
-            global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("[PROJECT_NAME].[CREATE_DIRECTORY].[FILE_NAME]", typeof([FILE_NAME]).Assembly);
+            global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("[PROJECT_NAME][NAMESPACE].[FILE_NAME]", typeof([FILE_NAME]).Assembly);
             resourceMan = temp;
         }
         return resourceMan;

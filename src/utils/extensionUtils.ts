@@ -1,13 +1,22 @@
 import * as vscode from "vscode";
 
 export class ExtensionUtils {
-    public static GetConfiguration(): vscode.WorkspaceConfiguration {
+    public static getConfiguration(): vscode.WorkspaceConfiguration {
         return vscode.workspace.getConfiguration(
             "dotnet-resource-manager",
         );
     }
 
-    public static GetWorkspaceFolder(): vscode.Uri | undefined {
+    public static async fileExists(designerFilePath: vscode.Uri): Promise<boolean> {
+        try {
+            await vscode.workspace.fs.stat(designerFilePath);
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    public static getWorkspaceFolder(): vscode.Uri | undefined {
         const workspaceFolders = vscode.workspace.workspaceFolders;
         let workspaceFolder = undefined;
 
@@ -32,7 +41,11 @@ export class ExtensionUtils {
         return segments[segments.length - 1];
     }
 
-    public static getCurrentFolderName(uri: vscode.Uri): string | undefined {
+    public static getCurrentFolderName(uri: vscode.Uri | undefined): string | undefined {
+
+        if (uri === undefined)
+            return undefined;
+
         const segments = uri.path.split("/");
         return segments[segments.length - 1];
     }
