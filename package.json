@@ -9,7 +9,12 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "workspaceContains:**/*.sln",
+    "workspaceContains:**/*.csproj",
+    "workspaceContains:**/*.Designer.cs",
+    "workspaceContains:**/*.resx"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "configuration": {
@@ -22,6 +27,12 @@
         }
       }
     },
+    "configurationDefaults": {
+      "explorer.fileNesting.enabled": true,
+      "explorer.fileNesting.patterns": {
+        "*.resx": "${capture}.*.resx"
+      }
+    },
     "commands": [
       {
         "command": "dotnet-resource-manager.setDefaultCreateDirectory",
@@ -31,7 +42,32 @@
         "command": "dotnet-resource-manager.createResourceFiles",
         "title": "Create Resource Files"
       }
-    ]
+    ],
+    "customEditors": [
+      {
+        "viewType": "dotnet-resource-manager.resourceEditor",
+        "displayName": "DotNet Resource Editor",
+        "selector": [
+          {
+            "filenamePattern": "*.resx"
+          },
+          {
+            "filenamePattern": "*.Designer.cs"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "resourceFilesView",
+          "name": "Resource Files",
+          "icon": "file",
+          "contextualTitle": "Resource Files"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

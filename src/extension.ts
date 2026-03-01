@@ -2,18 +2,27 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { CommandsRegistration } from './utils/commandsRegistration';
-import { HandlersRegistration } from './utils/handlersRegistration';
+import { ResourceTreeProvider } from './providers/resourceTreeProvider';
+import { ProvidersRegistration } from './utils/providersRegistration';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-	const handlersRegistration = new HandlersRegistration(context);
-	handlersRegistration.openTextDocument();
+	console.log('DOTNET RESOURCE MANAGER ACTIVATED');
+
+	const providersRegistration = new ProvidersRegistration(context);
+	providersRegistration.resourceEditor();
 
 	const commandsRegistration = new CommandsRegistration(context);
 	commandsRegistration.createResourceFiles();
 	commandsRegistration.setDefaultCreateDirectory();
+
+	const provider = new ResourceTreeProvider();
+	vscode.window.registerTreeDataProvider(
+		'resourceFilesView',
+		provider
+	);
 
 }
 
