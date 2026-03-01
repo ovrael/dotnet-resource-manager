@@ -29,12 +29,12 @@
 
     .action-button {
       background-color: black;
-      border: solid 1px rgb(204, 69, 69);
+      border: solid 1px rgb(73, 116, 217);
       border-radius: 0px;
-      color: rgb(204, 69, 69);
+      color: rgb(73, 116, 217);
     }
     .action-button:hover {
-      background-color: rgb(204, 69, 69);
+      background-color: rgb(73, 116, 217);
       border: solid 1px black;
       border: 0px;
       border-radius: 0px;
@@ -43,8 +43,8 @@
 
     .table-container {
       width: 100%;
-      height: fit-content;
-      height: 70%;
+      max-height: 70%;
+      min-height: 20px;
       overflow: auto;
     }
 
@@ -53,7 +53,7 @@
       display: table;
       width: 100%;
       border-collapse: collapse; /* zamiast border-spacing */
-      border: 2px solid rgba(204, 69, 69);
+      border: 2px solid rgba(73, 116, 217);
     }
 
     .div-table-row {
@@ -65,13 +65,17 @@
       resize: vertical;
     }
 
+    .empty-row {
+      background-color: rgb(241, 115, 115);
+    }
+
     .div-table-cell {
       display: table-cell;
       min-width: 200px;
       height: fit-content;
       vertical-align: top;
       border-collapse: collapse; /* zamiast border-spacing */
-      border: 1px solid rgb(204, 69, 69);
+      border: 1px solid rgb(73, 116, 217);
       padding: 2px;
     }
 
@@ -118,9 +122,119 @@
       font: inherit; /* dziedziczy font z rodzica */
       color: inherit; /* dziedziczy kolor tekstu */
     }
+
+    .ask-dialog {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: var(--vscode-editor-background);
+      border: 2px solid rgb(73, 116, 217);
+      padding: 20px;
+      z-index: 1000;
+    }
+
+    .ask-dialog.good-input {
+      border: 2px solid rgb(83, 217, 73);
+    }
+    .ask-dialog.bad-input {
+      border: 2px solid rgb(217, 73, 73);
+    }
+
+    .ask-dialog-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .ask-dialog-content {
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .ask-dialog-text {
+      margin-bottom: 10px;
+    }
+
+    .ask-dialog-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .ask-dialog-action-button {
+      background-color: transparent;
+      border: solid 1px rgb(73, 116, 217);
+      color: rgb(73, 116, 217);
+      padding: 5px 10px;
+      margin-left: 10px;
+    }
+    .ask-dialog-action-button:hover {
+      background-color: rgb(73, 116, 217);
+      border: solid 1px transparent;
+      color: white;
+    }
+
+    .cancel-button {
+      background-color: transparent;
+      border: solid 1px rgb(241, 115, 115);
+      color: rgb(241, 115, 115);
+    }
+    .cancel-button:hover {
+      background-color: rgb(241, 115, 115);
+      border: solid 1px transparent;
+      color: white;
+    }
+
+    .confirm-button {
+      background-color: transparent;
+      border: solid 1px rgb(73, 116, 217);
+      color: rgb(73, 116, 217);
+    }
+    .confirm-button:hover {
+      background-color: rgb(73, 116, 217);
+      border: solid 1px transparent;
+      color: white;
+    }
+
+    .confirm-button:disabled {
+      background-color: transparent;
+      border: solid 1px rgb(150, 150, 150);
+      color: rgb(150, 150, 150);
+      cursor: not-allowed;
+    }
   </style>
 
   <body>
+    <div id="ask-dialog" class="ask-dialog" hidden>
+      <div id="askDialogTitle" class="ask-dialog-title">
+        Ask user for something
+      </div>
+      <div id="askDialogContent" class="ask-dialog-content">
+        <div id="askDialogText" class="ask-dialog-text"></div>
+        <div id="askDialogInputContainer" hidden>
+          <input
+            id="askDialogInput"
+            type="text"
+            style="width: 100%; box-sizing: border-box"
+          />
+        </div>
+      </div>
+      <div id="askDialogActions" class="ask-dialog-actions">
+        <button
+          id="askDialogCancelButton"
+          class="ask-dialog-action-button cancel-button"
+        >
+          Cancel
+        </button>
+        <button
+          id="askDialogConfirmButton"
+          class="ask-dialog-action-button confirm-button"
+        >
+          OK
+        </button>
+      </div>
+    </div>
+
     <div style="font-size: large">
       <span> DotNet Resource Manager Editor for: </span>
       <span id="fileNameHeader"> </span>
@@ -171,28 +285,6 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        class ResourceFile {
-          uri;
-          /** @type {string} */
-          text;
-          /** @type {string} */
-          clearFileName;
-          /** @type {string} */
-          language;
-
-          /** @type {ResourceFileDataRecord[]} */
-          dataRecords;
-        }
-
-        class ResourceFileDataRecord {
-          /** @type {string} */
-          name;
-          /** @type {string} */
-          value;
-          /** @type {string} */
-          comment;
-        }
-
         class ResourceRow {
           /** @type {string} */
           name;
@@ -214,78 +306,12 @@
 
         /** @type {HTMLDivElement} */
         let resourceTable = undefined;
-        /** @type {ResourceFile[]} */
-        let inputResources = [];
+
         /** @type {ResourceRow[]} */
         let resourceRows = [];
 
         /** @type {string[]} */
         let cultures = [];
-        /** @type {string[]} */
-        let resourceNames = [];
-
-        function fillResourceData() {
-          // Get all cultures, get all value names
-          /** @type {Set<string>} */
-          const uniqueCultures = new Set();
-          /** @type {Set<string>} */
-          const uniqueResourceNames = new Set();
-          for (let i = 0; i < inputResources.length; i++) {
-            uniqueCultures.add(inputResources[i].language);
-            for (let j = 0; j < inputResources[i].dataRecords.length; j++) {
-              uniqueResourceNames.add(inputResources[i].dataRecords[j].name);
-            }
-          }
-
-          cultures = [...uniqueCultures];
-          resourceNames = [...uniqueResourceNames];
-        }
-
-        function fillResourceRows() {
-          resourceRows = [];
-
-          for (let i = 0; i < cultures.length; i++) {
-            const resourceFile = inputResources.find(
-              (r) => r.language === cultures[i],
-            );
-
-            if (!resourceFile) {
-              continue;
-            }
-
-            for (let j = 0; j < resourceNames.length; j++) {
-              let record = resourceFile.dataRecords.find(
-                (r) => r.name === resourceNames[j],
-              );
-
-              if (!record) {
-                record = new ResourceFileDataRecord();
-                record.name = resourceNames[j];
-                record.value = "";
-                record.comment = "";
-              }
-
-              /** @type {ResourceRow} */
-              const row = resourceRows.find((r) => r.name === record.name);
-
-              const newData = new ResourceData();
-              newData.language = cultures[i];
-              newData.value = record.value;
-
-              if (row === undefined) {
-                const newRow = new ResourceRow();
-                newRow.name = record.name;
-                newRow.comment = record.comment ?? "";
-                newRow.data = [];
-                newRow.data.push(newData);
-
-                resourceRows.push(newRow);
-              } else {
-                row.data.push(newData);
-              }
-            }
-          }
-        }
 
         function createTableHeaders() {
           const commentHeaderElement = document.getElementById("commentHeader");
@@ -384,6 +410,25 @@
 
           rowElement.appendChild(commentElement);
 
+          const textareas = rowElement.getElementsByTagName("textarea");
+          let empty = true;
+          for (const textarea of textareas) {
+            textarea.addEventListener("input", () => {
+              for (const ta of textareas) {
+                if (ta.value.length > 0) {
+                  empty = false;
+                  break;
+                }
+              }
+
+              if (empty) {
+                rowElement.classList.add("empty-row");
+              } else {
+                rowElement.classList.remove("empty-row");
+              }
+            });
+          }
+
           return rowElement;
         }
 
@@ -392,13 +437,6 @@
             const rowElement = createRowElement(resourceRow);
             resourceTable.appendChild(rowElement);
           }
-        }
-
-        function sendResourcesToClient() {
-          vscode.postMessage({
-            type: "updateResources",
-            data: resourceRows,
-          });
         }
 
         function addTextareaEvents(
@@ -443,7 +481,7 @@
 
           textarea.addEventListener("input", resize);
           textarea.addEventListener("input", updateData);
-          textarea.addEventListener("input", sendResourcesToClient);
+          textarea.addEventListener("input", sendTextareaChange);
 
           setTimeout(() => {
             resize();
@@ -451,34 +489,126 @@
         }
 
         function initButtons() {
+          const askDialog = document.getElementById("ask-dialog");
+
+          const dialogConfirmButton = document.getElementById(
+            "askDialogConfirmButton",
+          );
+
+          const dialogCancelButton = document.getElementById(
+            "askDialogCancelButton",
+          );
+          const dialogInput = document.getElementById("askDialogInput");
+
+          dialogCancelButton.onclick = (event) => {
+            askDialog.hidden = true;
+            dialogConfirmButton.onclick = null;
+            dialogInput.oninput = null;
+          };
+
           const addValueButton = document.getElementById("addValueButton");
           addValueButton.onclick = (event) => {
-            const newRow = new ResourceRow();
-            newRow.name = `New Value #${resourceRows.length + 1}`;
-            newRow.data = [];
-            newRow.comment = "";
+            const dialogTitle = document.getElementById("askDialogTitle");
+            const dialogText = document.getElementById("askDialogText");
+            const dialogInputContainer = document.getElementById(
+              "askDialogInputContainer",
+            );
 
-            for (const culture of cultures) {
-              const newData = new ResourceData();
-              newData.language = culture;
-              newData.value = "";
+            dialogTitle.innerText = "Add new resource value";
+            dialogText.innerText = "Enter name for new resource value:";
+            dialogInputContainer.hidden = false;
+            dialogInput.value = ``;
+            dialogInput.placeholder = `New Value #${resourceRows.length + 1}`;
 
-              newRow.data.push(newData);
-            }
+            dialogInput.oninput = (event) => {
+              const name = dialogInput.value.trim();
+              if (name.length === 0) {
+                askDialog.classList.remove("good-input");
+                askDialog.classList.add("bad-input");
+                dialogConfirmButton.disabled = true;
+                return;
+              }
 
-            resourceRows.push(newRow);
+              const existingRow = resourceRows.find((r) => r.name === name);
+              if (existingRow === undefined) {
+                askDialog.classList.remove("bad-input");
+                askDialog.classList.add("good-input");
+                dialogConfirmButton.disabled = false;
+              } else {
+                askDialog.classList.remove("good-input");
+                askDialog.classList.add("bad-input");
+                dialogConfirmButton.disabled = true;
+              }
+            };
 
-            const rowElement = createRowElement(newRow);
-            resourceTable.appendChild(rowElement);
+            dialogConfirmButton.onclick = (event) => {
+              const name = dialogInput.value.trim();
+
+              const newRow = new ResourceRow();
+              newRow.name = name;
+              newRow.data = [];
+              newRow.comment = "";
+
+              for (const culture of cultures) {
+                const newData = new ResourceData();
+                newData.language = culture;
+                newData.value = "";
+
+                newRow.data.push(newData);
+              }
+
+              resourceRows.push(newRow);
+
+              const rowElement = createRowElement(newRow);
+              resourceTable.appendChild(rowElement);
+
+              askDialog.hidden = true;
+              dialogConfirmButton.onclick = null;
+              dialogInput.oninput = null;
+            };
+
+            askDialog.hidden = false;
           };
         }
 
-        function sendResourcesToClient() {
+        //#region Send to client methods
+
+        function sendTextareaChange() {
           vscode.postMessage({
             type: "updateResources",
             data: resourceRows,
           });
         }
+
+        // element is 'row' or 'culture'
+        function sendRemoveChange(element, name) {
+          if (element !== "row" && element !== "culture") {
+            console.warn(`Unknown element to remove: ${element}`);
+            return;
+          }
+
+          vscode.postMessage({
+            type: "removeChange",
+            element: element,
+            name: name,
+          });
+        }
+
+        function sendAddRow() {
+          vscode.postMessage({
+            type: "updateResources",
+            data: resourceRows,
+          });
+        }
+
+        function sendAddCulture() {
+          vscode.postMessage({
+            type: "updateResources",
+            data: resourceRows,
+          });
+        }
+
+        //#endregion
 
         window.addEventListener("message", (event) => {
           const data = event.data;
@@ -491,10 +621,9 @@
 
             const fileNameHeader = document.getElementById("fileNameHeader");
             fileNameHeader.innerHTML = data.fileName;
-            inputResources = data.resources;
 
-            fillResourceData();
-            fillResourceRows();
+            cultures = data.cultures;
+            resourceRows = data.resourceRows;
 
             createTableHeaders();
             createTableRows();

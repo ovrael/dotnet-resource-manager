@@ -1,6 +1,8 @@
 import path from 'path';
 import * as vscode from 'vscode';
 import { ResourceFile } from '../models/resourceFile';
+import { ResourceConverter } from '../models/resourceConverter';
+import { ResourceRow } from '../models/resourceRow';
 
 export class ResourceEditorProvider implements vscode.CustomTextEditorProvider {
 
@@ -49,7 +51,7 @@ export class ResourceEditorProvider implements vscode.CustomTextEditorProvider {
         });
 
         webviewPanel.webview.options = {
-            enableScripts: true
+            enableScripts: true,
         };
 
         webviewPanel.webview.html = await this.getHtml();
@@ -61,16 +63,20 @@ export class ResourceEditorProvider implements vscode.CustomTextEditorProvider {
             resourceFiles.push(resourceFile);
         }
 
+        const resourceConverter: ResourceConverter = new ResourceConverter();
+        const tableData = resourceConverter.createResourceTableData(resourceFiles);
+        const resourceRows = resourceConverter.createResourceRows(resourceFiles, tableData);
+
         webviewPanel.webview.postMessage({
             type: "init",
             fileName: baseName,
-            resources: resourceFiles,
+            cultures: tableData.cultures,
+            resourceRows: resourceRows,
         });
 
         webviewPanel.webview.onDidReceiveMessage(message => {
             if (message.type === "updateResources") {
 
-                // const data = message.data;
 
                 console.log(`Editor made changes in resources`);
 
