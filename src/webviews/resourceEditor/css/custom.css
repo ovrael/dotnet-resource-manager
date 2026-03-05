@@ -1,0 +1,212 @@
+.bottom-container {
+    height: 25%;
+    width: 100%;
+    min-height: 200px;
+    min-width: 300px;
+    overflow: auto;
+}
+
+.options-container {
+    overflow: auto;
+    height: 100%;
+    width: 50%;
+}
+
+.actions-container {
+    overflow: auto;
+    height: 100%;
+    width: 50%;
+}
+
+.button-container {
+    height: 50px;
+    width: 50%;
+    padding: 10px 5px;
+}
+
+.action-button {
+    background-color: black;
+    border: solid 1px rgb(73, 116, 217);
+    border-radius: 0px;
+    color: rgb(73, 116, 217);
+}
+
+.action-button:hover {
+    background-color: rgb(73, 116, 217);
+    border: solid 1px black;
+    border: 0px;
+    border-radius: 0px;
+    color: black;
+}
+
+.table-container {
+    width: 100%;
+    max-height: 70%;
+    min-height: 20px;
+    overflow: auto;
+}
+
+.div-table {
+    box-sizing: border-box;
+    display: table;
+    width: 100%;
+    border-collapse: collapse;
+    /* zamiast border-spacing */
+    border: 2px solid rgba(73, 116, 217);
+}
+
+.div-table-row {
+    display: table-row;
+    width: auto;
+    clear: both;
+    min-height: 20px;
+    max-height: fit-content;
+    resize: vertical;
+}
+
+.empty-row {
+    background-color: rgb(241, 115, 115);
+}
+
+.div-table-cell {
+    display: table-cell;
+    min-width: 200px;
+    height: fit-content;
+    vertical-align: top;
+    border-collapse: collapse;
+    /* zamiast border-spacing */
+    border: 1px solid rgb(73, 116, 217);
+    padding: 2px;
+}
+
+.cell-header {
+    text-transform: capitalize;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.cell-value {
+    font-size: 12px;
+}
+
+.cell-short {
+    width: 200px;
+}
+
+.cell-long {
+    width: auto;
+}
+
+.resource-input {
+    width: 100%;
+    min-height: 20px;
+    resize: none;
+    overflow: hidden;
+    box-sizing: border-box;
+    color: var(--vscode-editor-foreground);
+}
+
+.textarea-reset {
+    background: transparent;
+    border: none;
+    outline: none;
+    box-shadow: none;
+
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    padding: 0;
+    margin: 0;
+
+    font: inherit;
+    color: inherit;
+}
+
+.ask-dialog {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--vscode-editor-background);
+    border: 2px solid rgb(73, 116, 217);
+    padding: 20px;
+    z-index: 1000;
+}
+
+.ask-dialog.good-input {
+    border: 2px solid rgb(83, 217, 73);
+}
+
+.ask-dialog.bad-input {
+    border: 2px solid rgb(217, 73, 73);
+}
+
+.ask-dialog-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.ask-dialog-content {
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.ask-dialog-text {
+    margin-bottom: 10px;
+}
+
+.ask-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.ask-dialog-action-button {
+    background-color: transparent;
+    border: solid 1px rgb(73, 116, 217);
+    color: rgb(73, 116, 217);
+    padding: 5px 10px;
+    margin-left: 10px;
+}
+
+.ask-dialog-action-button:hover {
+    background-color: rgb(73, 116, 217);
+    border: solid 1px transparent;
+    color: white;
+}
+
+button:hover {
+    cursor: pointer;
+}
+
+.cancel-button {
+    background-color: transparent;
+    border: solid 1px rgb(241, 115, 115);
+    color: rgb(241, 115, 115);
+}
+
+.cancel-button:hover {
+    background-color: rgb(241, 115, 115);
+    border: solid 1px transparent;
+    color: white;
+}
+
+.confirm-button {
+    background-color: transparent;
+    border: solid 1px rgb(73, 116, 217);
+    color: rgb(73, 116, 217);
+}
+
+.confirm-button:hover {
+    background-color: rgb(73, 116, 217);
+    border: solid 1px transparent;
+    color: white;
+}
+
+.confirm-button:disabled {
+    background-color: transparent;
+    border: solid 1px rgb(150, 150, 150);
+    color: rgb(150, 150, 150);
+    cursor: not-allowed;
+}

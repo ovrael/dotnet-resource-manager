@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <!-- [META_REPLACE] -->
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- [STYLES_REPLACE] -->
+
+    <title>Dotnet Resource Editor</title>
+  </head>
+
+  <body>
+    <div id="ask-dialog" class="ask-dialog" hidden>
+      <div id="askDialogTitle" class="ask-dialog-title">
+        Ask user for something
+      </div>
+      <div id="askDialogContent" class="ask-dialog-content">
+        <div id="askDialogText" class="ask-dialog-text"></div>
+        <div id="askDialogInputContainer" hidden>
+          <input
+            id="askDialogInput"
+            type="text"
+            style="width: 100%; box-sizing: border-box"
+          />
+        </div>
+      </div>
+      <div id="askDialogActions" class="ask-dialog-actions">
+        <button
+          id="askDialogCancelButton"
+          class="ask-dialog-action-button cancel-button"
+        >
+          Cancel
+        </button>
+        <button
+          id="askDialogConfirmButton"
+          class="ask-dialog-action-button confirm-button"
+        >
+          OK
+        </button>
+      </div>
+    </div>
+
+    <div style="font-size: large">
+      <span> DotNet Resource Manager Editor for: </span>
+      <span id="fileNameHeader"> </span>
+    </div>
+
+    <div id="errorMessagesContainer" class=""></div>
+
+    <div id="editorTop" class="top-container">
+      <div id="searchContainer" class="search-container">
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="Search..."
+          class="search-input"
+        />
+      </div>
+    </div>
+
+    <div id="resourceContent" class="table-container">
+      <div id="resourceTable" class="div-table">
+        <div id="resourceTableHeader" class="div-table-row">
+          <div id="nameHeader" class="div-table-cell cell-header cell-short">
+            Name
+          </div>
+
+          <div
+            id="CultureHeader"
+            class="div-table-cell cell-header cell-long"
+            data-cultureindex="0"
+          >
+            Default
+          </div>
+          <div id="commentHeader" class="div-table-cell cell-header cell-short">
+            Comment
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="editorBottom" class="bottom-container">
+      <div id="editorOptions" class="options-container"></div>
+      <div id="editorActions" class="actions-container">
+        <div class="button-container">
+          <button id="addValueButton" class="action-button">Add value</button>
+        </div>
+        <div class="button-container">
+          <button id="addCultureButton" class="action-button">
+            Add culture
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- [SCRIPTS_REPLACE] -->
+  </body>
+</html>
