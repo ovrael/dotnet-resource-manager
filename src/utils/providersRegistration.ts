@@ -15,7 +15,7 @@ export class ProvidersRegistration {
             await ResourceEditorProvider.create(this.context),
             {
                 webviewOptions: {
-                    retainContextWhenHidden: true
+                    retainContextWhenHidden: false,
                 }
             }
         );

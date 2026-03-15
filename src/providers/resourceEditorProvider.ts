@@ -1,21 +1,22 @@
 import * as vscode from 'vscode';
-import { ResourcesContainer } from '../models/resources/resourcesContainer';
+import { Resources } from '../models/resources/resources';
 
 export class ResourceEditorProvider implements vscode.CustomTextEditorProvider {
 
     private context: vscode.ExtensionContext;
-    private resourcesContainer: ResourcesContainer;
+    private resourcesContainer: Resources;
     private readonly textDecoder = new TextDecoder();
 
-    private constructor(context: vscode.ExtensionContext, resourcesContainer: ResourcesContainer) {
+    private constructor(context: vscode.ExtensionContext, resourcesContainer: Resources) {
         this.context = context;
         this.resourcesContainer = resourcesContainer;
     }
 
     public static async create(context: vscode.ExtensionContext) {
-        const resourcesContainer = await ResourcesContainer.create();
+        const resourcesContainer = await Resources.create();
         return new ResourceEditorProvider(context, resourcesContainer);
     }
+
 
     async resolveCustomTextEditor(
         document: vscode.TextDocument,
@@ -46,6 +47,7 @@ export class ResourceEditorProvider implements vscode.CustomTextEditorProvider {
         webviewPanel.webview.options = {
             enableScripts: true,
         };
+
 
         webviewPanel.webview.html = await this.getHtml(webviewPanel.webview);
 

@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import { ResourceFilesContainer } from "./resourceFilesContainer";
-import { ResourcePath } from "./resourcePath";
+import { PathData } from "./pathData";
 
-export class ResourcesContainer {
+export class Resources {
 
     private resourceFilesContainers: ResourceFilesContainer[] = [];
     private static resourcePatterns = ['**/*.resx', '**/*.*.resx', '**/*.Designer.cs'];
@@ -13,7 +13,7 @@ export class ResourcesContainer {
 
     public async tryAddResource(uri: vscode.Uri): Promise<ResourceFilesContainer | undefined> {
         const filePath = uri.fsPath;
-        const resourcePath = new ResourcePath(filePath);
+        const resourcePath = new PathData(filePath);
         const existing = this.resourceFilesContainers.find(r => r.exists(resourcePath));
 
         if (existing) {
@@ -27,7 +27,7 @@ export class ResourcesContainer {
 
     private tryRemoveResource(uri: vscode.Uri) {
         const filePath = uri.fsPath;
-        const resourcePath = new ResourcePath(filePath);
+        const resourcePath = new PathData(filePath);
         const existing = this.resourceFilesContainers.find(r => r.exists(resourcePath));
 
         if (existing) {
@@ -36,9 +36,9 @@ export class ResourcesContainer {
     }
 
 
-    public static async create(): Promise<ResourcesContainer> {
+    public static async create(): Promise<Resources> {
 
-        const instance = new ResourcesContainer();
+        const instance = new Resources();
         const resourceFileUris = await this.getResourceFileUris();
 
         for (let i = 0; i < resourceFileUris.length; i++) {
@@ -57,7 +57,7 @@ export class ResourcesContainer {
             return [];
         }
 
-        ResourcesContainer.resourcePatterns.forEach(async pattern => {
+        Resources.resourcePatterns.forEach(async pattern => {
             const watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(workspaceFolders[0], pattern), false, true, false);
             watcher.onDidCreate(async uri => {
                 await this.tryAddResource(uri);
@@ -89,7 +89,7 @@ export class ResourcesContainer {
         return uris;
     }
 
-    public tryGetResorce(path: ResourcePath): ResourceFilesContainer | undefined {
+    public tryGetResorce(path: PathData): ResourceFilesContainer | undefined {
         return this.resourceFilesContainers.find(r => r.exists(path));
     }
 }

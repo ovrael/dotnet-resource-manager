@@ -1,6 +1,6 @@
 import path from "path";
 
-export class ResourcePath {
+export class PathData {
 
     public directoryPath = ""; // e.g. "C:/project/Resources/"
     public basename = ""; // e.g. "MenuTexts" (with culture and extension)
@@ -15,7 +15,7 @@ export class ResourcePath {
         }
     }
 
-    public compareTo(other: ResourcePath): boolean {
+    public compareTo(other: PathData): boolean {
         return this.directoryPath === other.directoryPath && this.basename === other.basename;
     }
 }

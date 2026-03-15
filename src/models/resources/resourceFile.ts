@@ -1,19 +1,19 @@
 import * as vscode from 'vscode';
 
-import { ResourceElement } from "./resourceElement";
+import { Element } from "./element";
 
 export class ResourceFile {
 
     public filePath = ""; // e.g. "C:/project/Resources/MenuTexts.en.resx"
     public culture = "";  // e.g. "en" (culture part of the file name, can be empty for default culture)
-    public resources: ResourceElement[] = []; // list of resources in the file
+    public resources: Element[] = []; // list of resources in the file
 
     private static textDecoder = new TextDecoder();
     private static dataRegex = /<data name="(?<name>.*?)".*>(?<content>[\s\S]*?)<\/data>/gm;
     private static valueRegex = /<value>(?<content>[\s\S]*?)<\/value>/g;
     private static commentRegex = /<comment>(?<content>[\s\S]*?)<\/comment>/g;
 
-    private constructor(filePath: string, culture: string, resources: ResourceElement[]) {
+    private constructor(filePath: string, culture: string, resources: Element[]) {
         this.filePath = filePath;
         this.culture = culture;
         this.resources = resources;
@@ -29,14 +29,14 @@ export class ResourceFile {
         return new ResourceFile(filePath, culture, resources);
     }
 
-    private static getDataRecords(text: string): ResourceElement[] {
+    private static getDataRecords(text: string): Element[] {
         const validatedText = text.replace(/<!--.*-->/mgs, '');
         return this.searchForResourceData(validatedText);
     }
 
-    public static searchForResourceData(text: string): ResourceElement[] {
+    public static searchForResourceData(text: string): Element[] {
 
-        const dataRecords: ResourceElement[] = [];
+        const dataRecords: Element[] = [];
 
         const dataMatches = text.matchAll(this.dataRegex);
 
@@ -53,7 +53,7 @@ export class ResourceFile {
             const value = (valueMatch && valueMatch.groups?.content) ?? "";
             const comment = (commentMatch && commentMatch.groups?.content) ?? "";
 
-            dataRecords.push(new ResourceElement(name, value, comment));
+            dataRecords.push(new Element(name.trim(), value.trim(), comment.trim()));
         }
 
         return dataRecords;

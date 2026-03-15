@@ -60,12 +60,15 @@ document.addEventListener("DOMContentLoaded", () => {
             textarea.dataset.prevname = name;
         }
 
-        addTextareaEvents(textarea, value, type, undefined);
+        addTextareaEvents(textarea, type, undefined);
 
         return textarea;
     }
 
     function createRowElement(/** @type {ResourceRow} **/ resourceRow) {
+
+        const textareas = [];
+
         const rowElement = document.createElement("div");
         rowElement.id = `${resourceRow.name}Row`;
         rowElement.className = `div-table-row`;
@@ -80,6 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "name",
             undefined,
         );
+        textareas.push(nameTextareaElement);
 
         nameElement.appendChild(nameTextareaElement);
 
@@ -99,9 +103,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 "value",
                 culture,
             );
-
+            textareas.push(valueTextareaElement);
             valueElement.appendChild(valueTextareaElement);
-
             rowElement.appendChild(valueElement);
         }
 
@@ -116,28 +119,13 @@ document.addEventListener("DOMContentLoaded", () => {
             "comment",
             undefined,
         );
+        textareas.push(commentTextareaElement);
         commentElement.appendChild(commentTextareaElement);
-
         rowElement.appendChild(commentElement);
 
-        const textareas = rowElement.getElementsByTagName("textarea");
-        let empty = true;
-        for (const textarea of textareas) {
-            textarea.addEventListener("input", () => {
-                for (const ta of textareas) {
-                    if (ta.value.length > 0) {
-                        empty = false;
-                        break;
-                    }
-                }
+        addRowEvents(rowElement, textareas);
 
-                if (empty) {
-                    rowElement.classList.add("empty-row");
-                } else {
-                    rowElement.classList.remove("empty-row");
-                }
-            });
-        }
+
 
         return rowElement;
     }
@@ -151,7 +139,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function addTextareaEvents(
           /** @type {HTMLTextAreaElement}**/ textarea,
-        rowName,
         type,
         culture,
     ) {
@@ -201,13 +188,69 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         };
 
-        textarea.addEventListener("input", resize);
+        // textarea.addEventListener("input", resize);
         textarea.addEventListener("input", updateData);
         textarea.addEventListener("input", () => vscodeMessages.textareaChange(textarea));
 
+        // setTimeout(() => {
+        //     resize();
+        // }, 500);
+    }
+
+    function addRowEvents(/** @type {HTMLDivElement} **/ rowElement, /** @type {HTMLTextAreaElement[]} **/ textareas) {
+        let empty = true;
+
+        for (const textarea of textareas) {
+
+            textarea.addEventListener("input", () => {
+                console.log(`Check if empty row`);
+                for (const ta of textareas) {
+                    if (ta.value.length > 0) {
+                        empty = false;
+                        break;
+                    }
+                }
+
+                if (empty) {
+                    rowElement.classList.add("empty-row");
+                } else {
+                    rowElement.classList.remove("empty-row");
+                }
+            });
+
+
+
+            textarea.addEventListener("input", () => {
+
+                const heightsInput = textareas.map((ta) => ta.scrollHeight);
+                const maxHeightInput = Math.max(...heightsInput);
+
+                console.log(`Set new height: ${maxHeightInput}px`);
+                console.log(heightsInput);
+                if (maxHeightInput <= 0) { return; }
+
+                for (const ta of textareas) {
+                    ta.style.height = maxHeightInput + "px";
+                }
+            });
+
+        }
+
+
         setTimeout(() => {
-            resize();
+            const heights = textareas.map((ta) => ta.scrollHeight);
+            const maxHeight = Math.max(...heights);
+            console.log(`Set initial height: ${maxHeight}px`);
+
+            if (maxHeight <= 0) { return; }
+
+            for (const textarea of textareas) {
+                textarea.style.height = "auto";
+                textarea.style.height = maxHeight + "px";
+            }
         }, 500);
+
+
     }
 
     function initButtons() {

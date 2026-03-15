@@ -3,23 +3,23 @@ import * as vscode from 'vscode';
 
 import { ResourceFile } from "./resourceFile";
 import { DesignerFile } from "./designerFile";
-import { ResourcePath } from "./resourcePath";
+import { PathData } from "./pathData";
 
 import { ResourceRow } from "../resourceTable/resourceRow";
 import { ResourceData } from "../resourceTable/resourceData";
 import { ResourceTableData } from "../resourceTable/resourceTableData";
-import { ResourceElement } from "./resourceElement";
+import { Element } from "./element";
 
 export class ResourceFilesContainer {
 
     public webviewEditorPanel?: vscode.WebviewPanel; // optional, may not exist
-    public resourcePath: ResourcePath;
+    public resourcePath: PathData;
 
     public designerFile?: DesignerFile; // optional, may not exist - can be recreated
     public resourceFiles: ResourceFile[] = [];
 
     private constructor(resourcePath: string) {
-        this.resourcePath = new ResourcePath(resourcePath);
+        this.resourcePath = new PathData(resourcePath);
     }
 
     public openEditor(editor: vscode.WebviewPanel) {
@@ -31,7 +31,7 @@ export class ResourceFilesContainer {
 
     }
 
-    public exists(otherPath: ResourcePath): boolean {
+    public exists(otherPath: PathData): boolean {
         return this.resourcePath.compareTo(otherPath);
     }
 
@@ -48,11 +48,11 @@ export class ResourceFilesContainer {
 
         if (filePath.endsWith(".Designer.cs")) {
 
-            if (this.designerFile !== undefined) {
-                return undefined; // designer file already exists
+            if (this.designerFile === undefined) {
+                // we don't need to read the designer file, we just need to know it exists
+                this.designerFile = new DesignerFile(filePath);
             }
 
-            this.designerFile = new DesignerFile(filePath); // we don't need to read the designer file, we just need to know it exists
             return this;
         }
         else if (filePath.endsWith(".resx")) {
@@ -148,7 +148,7 @@ export class ResourceFilesContainer {
                 );
 
                 if (!record) {
-                    record = new ResourceElement(resourceNames[j], "", "");
+                    record = new Element(resourceNames[j], "", "");
                 }
 
                 const row: ResourceRow | undefined = resourceRows.find((r) => r.name === record.name);

@@ -1,4 +1,4 @@
-export class ResourceElement {
+export class Element {
 
     public name = "";   // e.g. "FileMenu"
     public value = "";  // e.g. "File"
