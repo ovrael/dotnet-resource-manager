@@ -327,6 +327,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.addEventListener("message", (event) => {
 
+        console.log(`RESOURCE EDITOR GOT MESSAGE:`);
+        console.log(event);
+
         const type = event.data.type;
         const data = event.data.data;
 

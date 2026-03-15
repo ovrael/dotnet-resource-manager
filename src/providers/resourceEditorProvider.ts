@@ -1,31 +1,20 @@
-import path from 'path';
 import * as vscode from 'vscode';
-import { ResourceFile } from '../models/resourceFile';
-import { ResourceConverter } from '../models/resourceConverter';
-import { ResourceRow } from '../models/resourceRow';
+import { ResourcesContainer } from '../models/resources/resourcesContainer';
 
 export class ResourceEditorProvider implements vscode.CustomTextEditorProvider {
 
     private context: vscode.ExtensionContext;
+    private resourcesContainer: ResourcesContainer;
     private readonly textDecoder = new TextDecoder();
 
-    private openPanels: Map<string, vscode.WebviewPanel> = new Map();
-
-    constructor(context: vscode.ExtensionContext) {
+    private constructor(context: vscode.ExtensionContext, resourcesContainer: ResourcesContainer) {
         this.context = context;
+        this.resourcesContainer = resourcesContainer;
     }
 
-    private async getResourceFiles(uri: vscode.Uri, baseName: string): Promise<vscode.Uri[]> {
-
-        const folderPath = path.dirname(uri.fsPath);
-
-        const pattern1 = new vscode.RelativePattern(folderPath, `${baseName}.resx`);
-        const pattern2 = new vscode.RelativePattern(folderPath, `${baseName}.*.resx`);
-
-        const files1 = await vscode.workspace.findFiles(pattern1);
-        const files2 = await vscode.workspace.findFiles(pattern2);
-
-        return files1.concat(files2);
+    public static async create(context: vscode.ExtensionContext) {
+        const resourcesContainer = await ResourcesContainer.create();
+        return new ResourceEditorProvider(context, resourcesContainer);
     }
 
     async resolveCustomTextEditor(
@@ -33,21 +22,25 @@ export class ResourceEditorProvider implements vscode.CustomTextEditorProvider {
         webviewPanel: vscode.WebviewPanel
     ): Promise<void> {
 
-        const folderPath = path.dirname(document.fileName);
-        const baseName = path.basename(document.fileName).replace(/(\.\w*)?\.resx/, '').replace(/\.Designer\.cs$/, '');
-        const panelKey = `${folderPath}/${baseName}`;
-
-        const existingPanel = this.openPanels.get(panelKey);
-        if (existingPanel) {
-            existingPanel.reveal();
+        const container = await this.resourcesContainer.tryAddResource(document.uri);
+        if (!container) {
+            vscode.window.showErrorMessage(`Failed to open resource editor for ${document.uri.fsPath}.`);
             webviewPanel.dispose();
             return;
         }
 
-        this.openPanels.set(panelKey, webviewPanel);
+        if (container.webviewEditorPanel) {
+            container.webviewEditorPanel.reveal();
+            webviewPanel.dispose();
+            return;
+        }
+
+        container.openEditor(webviewPanel);
+        webviewPanel.reveal();
+
 
         webviewPanel.onDidDispose(() => {
-            this.openPanels.delete(panelKey);
+            container.closeEditor();
         });
 
         webviewPanel.webview.options = {
@@ -56,22 +49,14 @@ export class ResourceEditorProvider implements vscode.CustomTextEditorProvider {
 
         webviewPanel.webview.html = await this.getHtml(webviewPanel.webview);
 
-        const files = await this.getResourceFiles(document.uri, baseName);
-        const resourceFiles = [];
-        for (let i = 0; i < files.length; i++) {
-            const resourceFile = await ResourceFile.create(files[i]);
-            resourceFiles.push(resourceFile);
-        }
-
-        const resourceConverter: ResourceConverter = new ResourceConverter();
-        const tableData = resourceConverter.createResourceTableData(resourceFiles);
-        const resourceRows = resourceConverter.createResourceRows(resourceFiles, tableData);
+        const cultures = container.getCultures();
+        const resourceRows = container.toResourceRows();
 
         webviewPanel.webview.postMessage({
             type: "init",
             data: {
-                fileName: baseName,
-                cultures: tableData.cultures,
+                fileName: container.resourcePath.basename,
+                cultures: cultures,
                 resourceRows: resourceRows,
             }
         });
@@ -114,21 +99,6 @@ export class ResourceEditorProvider implements vscode.CustomTextEditorProvider {
                     default:
                         break;
                 }
-
-
-
-                // const edit = new vscode.WorkspaceEdit();
-
-                // edit.replace(
-                //     document.uri,
-                //     new vscode.Range(
-                //         0, 0,
-                //         document.lineCount, 0
-                //     ),
-                //     message.text
-                // );
-
-                // vscode.workspace.applyEdit(edit);
             }
         });
     }

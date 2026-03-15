@@ -9,10 +9,10 @@ export class ProvidersRegistration {
         this.context = context;
     }
 
-    public resourceEditor() {
+    public async resourceEditor() {
         const disposable = vscode.window.registerCustomEditorProvider(
             "dotnet-resource-manager.resourceEditor",
-            new ResourceEditorProvider(this.context),
+            await ResourceEditorProvider.create(this.context),
             {
                 webviewOptions: {
                     retainContextWhenHidden: true
