@@ -76,7 +76,7 @@
     border-collapse: collapse;
     /* zamiast border-spacing */
     border: 1px solid rgb(73, 116, 217);
-    padding: 2px;
+    padding: 0.5em;
 }
 
 .cell-header {
