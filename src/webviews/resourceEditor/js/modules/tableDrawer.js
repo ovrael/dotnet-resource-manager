@@ -1,3 +1,6 @@
+import ResourceRow from './resourceRow.js';
+import ResourceData from './resourceData.js';
+
 export default class TableDrawer {
 
     /** @type {HTMLDivElement} */
@@ -52,7 +55,27 @@ export default class TableDrawer {
         }
     }
 
-    #createTextarea(name, value, type, culture) {
+    addNewRow(name, /**@type {TableData} */ tableData) {
+        const newRow = new ResourceRow();
+        newRow.name = name;
+        newRow.data = [];
+        newRow.comment = "";
+
+        for (const culture of tableData.getCultures()) {
+            const newData = new ResourceData();
+            newData.language = culture;
+            newData.value = "";
+
+            newRow.data.push(newData);
+        }
+
+        tableData.addResource(newRow);
+
+        const rowElement = this.#createRowElement(newRow, tableData.getCultures());
+        this.#tableDiv.appendChild(rowElement);
+    }
+
+    #createTextarea(resourceRow, name, value, type, culture) {
         const textarea = document.createElement("textarea");
         textarea.dataset.name = name;
         textarea.dataset.type = type;
@@ -65,7 +88,7 @@ export default class TableDrawer {
             textarea.dataset.prevname = name;
         }
 
-        this.#addTextareaEvents(textarea, type, undefined);
+        this.#addTextareaEvents(resourceRow, textarea, type, undefined);
 
         return textarea;
     }
@@ -83,26 +106,25 @@ export default class TableDrawer {
         nameElement.className = `div-table-cell cell-value cell-short`;
 
         const nameTextareaElement = this.#createTextarea(
+            resourceRow,
             resourceRow.name,
             resourceRow.name,
             "name",
             undefined,
         );
         textareas.push(nameTextareaElement);
-
         nameElement.appendChild(nameTextareaElement);
-
         rowElement.appendChild(nameElement);
 
         for (const culture of cultures) {
             const valueElement = document.createElement("div");
             const data = resourceRow.data.find((d) => d.language === culture);
             valueElement.id = `${resourceRow.name}_${culture}Value`;
-            // valueElement.textContent = data.value;
             valueElement.className = `div-table-cell cell-value cell-long`;
 
             let trueValue = data === undefined ? "" : data.value;
             const valueTextareaElement = this.#createTextarea(
+                resourceRow,
                 resourceRow.name,
                 trueValue,
                 "value",
@@ -119,6 +141,7 @@ export default class TableDrawer {
         commentElement.className = `div-table-cell cell-value cell-short`;
 
         const commentTextareaElement = this.#createTextarea(
+            resourceRow,
             resourceRow.name,
             resourceRow.comment,
             "comment",
@@ -136,6 +159,7 @@ export default class TableDrawer {
     }
 
     #addTextareaEvents(
+          /** @type {ResourceRow}**/ resourceRow,
           /** @type {HTMLTextAreaElement}**/ textarea,
         type,
         culture,
@@ -149,8 +173,8 @@ export default class TableDrawer {
 
         const updateData = () => {
 
-            /** @type {ResourceRow} **/
-            const resourceRow = resourceRows.find((r) => r.name === textarea.dataset.name);
+            // /** @type {ResourceRow} **/
+            // const resourceRow = resourceRows.find((r) => r.name === textarea.dataset.name);
 
             if (!resourceRow) { return; }
 
@@ -160,14 +184,14 @@ export default class TableDrawer {
                     resourceRow.name = textarea.value;
                     textarea.dataset.name = `${resourceRow.name}`;
 
-                    const textareas = resourceRow.getElementsByTagName("textarea");
-                    for (const textarea of textareas) {
+                    const textareasSiblings = textarea.parentElement.parentElement.getElementsByTagName("textarea");
+                    for (const textarea of textareasSiblings) {
 
-                        if (textarea.dataset.name === resourceRow.name) { continue; }
-                        else {
+                        if (textarea.dataset.name === resourceRow.name) {
+                            continue;
+                        } else {
                             textarea.dataset.name = `${resourceRow.name}`;
                         }
-
                     }
                     break;
                 case "value":

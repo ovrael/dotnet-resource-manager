@@ -13,11 +13,11 @@ export default class ActionsDrawer {
     // Actions
     addValueButton = document.getElementById("addValueButton");
 
-    init() {
-        this.#initAddValueAction();
+    init(tableDrawer, tableData) {
+        this.#initAddValueAction(tableDrawer, tableData);
     }
 
-    #initAddValueAction() {
+    #initAddValueAction(tableDrawer, tableData) {
 
         this.dialogContainer.innerHTML = `
         <div id="askDialogTitle" class="ask-dialog-title">
@@ -46,8 +46,15 @@ export default class ActionsDrawer {
             >
             OK
             </button>
-        </div>
-      `;
+        </div>`;
+
+        this.dialogConfirmButton = document.getElementById(
+            "askDialogConfirmButton",
+        );
+        this.dialogCancelButton = document.getElementById(
+            "askDialogCancelButton",
+        );
+
 
 
         const dialogInput = document.getElementById("askDialogInput");
@@ -82,7 +89,7 @@ export default class ActionsDrawer {
                     return;
                 }
 
-                const existingRow = tableData.resourceByName(name);
+                const existingRow = tableData.findResourceByName(name);
                 if (existingRow === undefined) {
                     this.dialogContainer.classList.remove("bad-input");
                     this.dialogContainer.classList.add("good-input");
@@ -95,25 +102,9 @@ export default class ActionsDrawer {
             };
 
             this.dialogConfirmButton.onclick = (event) => {
+
                 const name = dialogInput.value.trim();
-
-                const newRow = new ResourceRow();
-                newRow.name = name;
-                newRow.data = [];
-                newRow.comment = "";
-
-                for (const culture of cultures) {
-                    const newData = new ResourceData();
-                    newData.language = culture;
-                    newData.value = "";
-
-                    newRow.data.push(newData);
-                }
-
-                tableData.addResource(newRow);
-
-                const rowElement = createRowElement(newRow);
-                resourceTable.appendChild(rowElement);
+                tableDrawer.addNewRow(name, tableData);
 
                 this.dialogContainer.hidden = true;
                 this.dialogConfirmButton.onclick = null;
