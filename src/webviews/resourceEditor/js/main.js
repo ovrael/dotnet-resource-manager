@@ -7,10 +7,6 @@ import ActionsDrawer from './modules/actionsDrawer.js';
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    function updateTableData() {
-
-    }
-
     console.log("--------------------------------- START JAVASCRIPT");
 
     const vscode = acquireVsCodeApi();
@@ -34,9 +30,17 @@ document.addEventListener("DOMContentLoaded", () => {
             tableDrawer.createTableHeaders(tableData);
             tableDrawer.createTableRows(tableData);
 
-
             actionsDrawer.init(tableDrawer, tableData);
-            // initButtons();
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === "Escape") {
+            const dialog = document.getElementById("dialogContainer");
+            if (dialog) {
+                dialog.hidden = true;
+                dialog.replaceChildren([]);
+            }
         }
     });
 });

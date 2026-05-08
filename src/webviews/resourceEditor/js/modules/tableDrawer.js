@@ -55,19 +55,7 @@ export default class TableDrawer {
         }
     }
 
-    addNewRow(name, /**@type {TableData} */ tableData) {
-        const newRow = new ResourceRow();
-        newRow.name = name;
-        newRow.data = [];
-        newRow.comment = "";
-
-        for (const culture of tableData.getCultures()) {
-            const newData = new ResourceData();
-            newData.language = culture;
-            newData.value = "";
-
-            newRow.data.push(newData);
-        }
+    addNewRow(newRow, /**@type {TableData} */ tableData) {
 
         tableData.addResource(newRow);
 
@@ -137,7 +125,6 @@ export default class TableDrawer {
 
         const commentElement = document.createElement("div");
         commentElement.id = `${resourceRow.name}Comment`;
-        commentElement.textContent = resourceRow.comment;
         commentElement.className = `div-table-cell cell-value cell-short`;
 
         const commentTextareaElement = this.#createTextarea(

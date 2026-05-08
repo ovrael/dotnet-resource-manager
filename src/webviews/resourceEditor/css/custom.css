@@ -123,46 +123,46 @@
     color: inherit;
 }
 
-.ask-dialog {
+.dialog {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: var(--vscode-editor-background);
-    border: 2px solid rgb(73, 116, 217);
+    border: 2px solid rgb(63, 74, 99);
     padding: 20px;
     z-index: 1000;
 }
 
-.ask-dialog.good-input {
+.dialog.good-input {
     border: 2px solid rgb(83, 217, 73);
 }
 
-.ask-dialog.bad-input {
+.dialog.bad-input {
     border: 2px solid rgb(217, 73, 73);
 }
 
-.ask-dialog-title {
+.dialog-title {
     font-size: 16px;
     font-weight: bold;
     margin-bottom: 10px;
 }
 
-.ask-dialog-content {
+.dialog-content {
     font-size: 14px;
     margin-bottom: 20px;
 }
 
-.ask-dialog-text {
+.dialog-text {
     margin-bottom: 10px;
 }
 
-.ask-dialog-actions {
+.dialog-actions {
     display: flex;
     justify-content: flex-end;
 }
 
-.ask-dialog-action-button {
+.dialog-action-button {
     background-color: transparent;
     border: solid 1px rgb(73, 116, 217);
     color: rgb(73, 116, 217);
@@ -170,7 +170,7 @@
     margin-left: 10px;
 }
 
-.ask-dialog-action-button:hover {
+.dialog-action-button:hover {
     background-color: rgb(73, 116, 217);
     border: solid 1px transparent;
     color: white;

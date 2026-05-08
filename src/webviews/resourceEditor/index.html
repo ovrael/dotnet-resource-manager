@@ -13,30 +13,28 @@
   </head>
 
   <body>
-    <div id="dialogContainer" class="ask-dialog" hidden>
-      <div id="askDialogTitle" class="ask-dialog-title">
-        Ask user for something
-      </div>
-      <div id="askDialogContent" class="ask-dialog-content">
-        <div id="askDialogText" class="ask-dialog-text"></div>
-        <div id="askDialogInputContainer" hidden>
+    <div id="dialogContainer" class="dialog" hidden>
+      <div id="dialogTitle" class="dialog-title">Ask user for something</div>
+      <div id="dialogContent" class="dialog-content">
+        <div id="dialogText" class="dialog-text"></div>
+        <div id="dialogInputContainer" hidden>
           <input
-            id="askDialogInput"
+            id="dialogInput"
             type="text"
             style="width: 100%; box-sizing: border-box"
           />
         </div>
       </div>
-      <div id="askDialogActions" class="ask-dialog-actions">
+      <div id="dialogActions" class="dialog-actions">
         <button
-          id="askDialogCancelButton"
-          class="ask-dialog-action-button cancel-button"
+          id="dialogCancelButton"
+          class="dialog-action-button cancel-button"
         >
           Cancel
         </button>
         <button
-          id="askDialogConfirmButton"
-          class="ask-dialog-action-button confirm-button"
+          id="dialogConfirmButton"
+          class="dialog-action-button confirm-button"
         >
           OK
         </button>

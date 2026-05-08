@@ -1,13 +1,17 @@
+import { DialogBuilder } from './dialogBuilder.js';
+import ResourceRow from './resourceRow.js';
+import ResourceData from './resourceData.js';
+
 export default class ActionsDrawer {
 
     // Dialog
     dialogContainer = document.getElementById("dialogContainer");
 
     dialogConfirmButton = document.getElementById(
-        "askDialogConfirmButton",
+        "dialogConfirmButton",
     );
     dialogCancelButton = document.getElementById(
-        "askDialogCancelButton",
+        "dialogCancelButton",
     );
 
     // Actions
@@ -18,67 +22,31 @@ export default class ActionsDrawer {
     }
 
     #initAddValueAction(tableDrawer, tableData) {
-
-        this.dialogContainer.innerHTML = `
-        <div id="askDialogTitle" class="ask-dialog-title">
-        Ask user for something
-        </div>
-        <div id="askDialogContent" class="ask-dialog-content">
-            <div id="askDialogText" class="ask-dialog-text"></div>
-            <div id="askDialogInputContainer" hidden>
-            <input
-                id="askDialogInput"
-                type="text"
-                style="width: 100%; box-sizing: border-box"
-            />
-            </div>
-        </div>
-        <div id="askDialogActions" class="ask-dialog-actions">
-            <button
-            id="askDialogCancelButton"
-            class="ask-dialog-action-button cancel-button"
-            >
-            Cancel
-            </button>
-            <button
-            id="askDialogConfirmButton"
-            class="ask-dialog-action-button confirm-button"
-            >
-            OK
-            </button>
-        </div>`;
-
-        this.dialogConfirmButton = document.getElementById(
-            "askDialogConfirmButton",
-        );
-        this.dialogCancelButton = document.getElementById(
-            "askDialogCancelButton",
-        );
-
-
-
-        const dialogInput = document.getElementById("askDialogInput");
+        const parser = new DOMParser();
 
 
         addValueButton.onclick = (event) => {
+
+            const dialogContent = DialogBuilder.createAddValueDialog(tableData.getCultures());
+
+            this.dialogContainer.innerHTML = dialogContent;
+
+
+            this.dialogConfirmButton = document.getElementById(
+                "dialogConfirmButton",
+            );
+            this.dialogCancelButton = document.getElementById(
+                "dialogCancelButton",
+            );
+
+            const dialogInput = this.dialogContainer.querySelector("#valueNameInput");
 
             this.dialogCancelButton.onclick = (event) => {
                 this.dialogContainer.hidden = true;
                 this.dialogConfirmButton.onclick = null;
                 dialogInput.oninput = null;
+                this.dialogContainer.replaceChildren([]);
             };
-
-            const dialogTitle = document.getElementById("askDialogTitle");
-            const dialogText = document.getElementById("askDialogText");
-            const dialogInputContainer = document.getElementById(
-                "askDialogInputContainer",
-            );
-
-            dialogTitle.innerText = "Add new resource value";
-            dialogText.innerText = "Enter name for new resource value:";
-            dialogInputContainer.hidden = false;
-            dialogInput.value = ``;
-            dialogInput.placeholder = `Value name`;
 
             dialogInput.oninput = (event) => {
                 const name = dialogInput.value.trim();
@@ -102,9 +70,29 @@ export default class ActionsDrawer {
             };
 
             this.dialogConfirmButton.onclick = (event) => {
-
                 const name = dialogInput.value.trim();
-                tableDrawer.addNewRow(name, tableData);
+                if (name.length === 0) {
+                    dialogInput.placeholder = `Value name with length greater than 0 ;)`;
+                    return;
+                }
+
+                const commentInput = this.dialogContainer.querySelector("#commentInput");
+
+                const newRow = new ResourceRow();
+                newRow.name = name;
+                newRow.data = [];
+                newRow.comment = commentInput.value.trim();
+
+                for (const culture of tableData.getCultures()) {
+                    const cultureFixed = culture ? culture : "default";
+                    const cultureInput = this.dialogContainer.querySelector(`#valueInput_${cultureFixed}`);
+                    const newData = new ResourceData();
+                    newData.language = culture;
+                    newData.value = cultureInput.value.trim();
+                    newRow.data.push(newData);
+                }
+
+                tableDrawer.addNewRow(newRow, tableData);
 
                 this.dialogContainer.hidden = true;
                 this.dialogConfirmButton.onclick = null;
