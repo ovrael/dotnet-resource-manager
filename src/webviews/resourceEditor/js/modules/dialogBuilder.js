@@ -77,6 +77,31 @@ export class DialogBuilder {
         return dialogText;
     }
 
+    static createAddCultureDialog(/**@type {string[]}*/cultures) {
+
+        const title = "Add new resource culture";
+
+        let content = `
+        <div>
+            <div id="dialogText" class="dialog-text"> Culture: </div>
+            <input
+                id="cultureInput"
+                type="text"
+                style="width: 100%; box-sizing: border-box"
+                placeholder="Culture name"
+            />
+        </div>
+        <div id="dialogText" class="dialog-text"> Already existing cultures: ${cultures.map(f => !f ? "default" : f).join(",")} </div>
+        `;
+
+        let dialogText = `${this.dialogTemplate}`;
+
+        dialogText = dialogText.replace("[DIALOG_TITLE]", title);
+        dialogText = dialogText.replace("[DIALOG_CONTENT]", content);
+
+        return dialogText;
+    }
+
 
 
 

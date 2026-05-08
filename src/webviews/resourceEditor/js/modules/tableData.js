@@ -1,3 +1,5 @@
+import ResourceData from './resourceData.js';
+
 export default class TableData {
 
     /** @type {ResourceRow[]} */
@@ -28,7 +30,22 @@ export default class TableData {
         this.#resourceRows.push(newResource);
     }
 
+    addCulture(culture) {
+        this.#cultures.push(culture);
+        for (let i = 0; i < this.#resourceRows.length; i++) {
+            const newCultureValue = new ResourceData();
+            newCultureValue.language = culture;
+            newCultureValue.value = "";
+            this.#resourceRows[i].data.push(newCultureValue);
+        }
+    }
+
+    getCulture(searchCulture) {
+        return this.#cultures.find(r => r === searchCulture);
+    }
+
     findResourceByName(/** @type {string} */ resourceName) {
         return this.#resourceRows.find((r) => r.name === resourceName);
     }
+
 }

@@ -63,6 +63,113 @@ export default class TableDrawer {
         this.#tableDiv.appendChild(rowElement);
     }
 
+    addNewCulture(culture, /**@type {TableData} */ tableData) {
+        tableData.addCulture(culture);
+
+        // const headerRow = document.getElementById("resourceTableHeader");
+        // if (headerRow) {
+        //     const cultureHeader = document.createElement("div");
+        //     cultureHeader.id = `${culture}CultureHeader`;
+        //     cultureHeader.innerText = culture;
+        //     cultureHeader.className = `div-table-cell cell-header cell-long`;
+
+        //     const commentHeaderElement = document.getElementById("commentHeader");
+        //     headerRow.insertBefore(
+        //         cultureHeader,
+        //         commentHeaderElement,
+        //     );
+        // }
+
+        /**@type {ResourceRow[] }*/const resources = tableData.getResourceRows();
+
+        const rows = Array.from(document.getElementsByClassName('div-table-row'));
+        // if resource has empty name, cant add culture
+
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+
+            if (row.id === "resourceTableHeader") {
+                const cultureHeader = document.createElement("div");
+                cultureHeader.id = `${culture}CultureHeader`;
+                cultureHeader.innerText = culture;
+                cultureHeader.className = `div-table-cell cell-header cell-long`;
+
+                const commentHeaderElement = document.getElementById("commentHeader");
+                row.insertBefore(
+                    cultureHeader,
+                    commentHeaderElement,
+                );
+                continue;
+            }
+
+            const nameTextarea = row.children[0].children[0];
+            if (!nameTextarea) continue;
+
+            const commentElement = row.children[row.children.length - 1];
+
+            const resourceName = nameTextarea.dataset.name ?? "";
+            const resource = tableData.findResourceByName(resourceName);
+
+
+            const valueElement = document.createElement("div");
+            valueElement.id = `${resource.name}_${culture}Value`;
+            valueElement.className = `div-table-cell cell-value cell-long`;
+
+            const valueTextareaElement = this.#createTextarea(
+                resource,
+                resource.name,
+                "",
+                "value",
+                culture,
+            );
+
+            const textareas = Array.from(
+                row.querySelectorAll("textarea")
+            );
+            textareas.push(valueTextareaElement);
+            valueElement.appendChild(valueTextareaElement);
+            row.insertBefore(
+                valueElement,
+                commentElement,
+            );
+
+            this.#addRowEvents(row, textareas);
+        }
+
+
+        // for (let i = 0; i < resources.length; i++) {
+        //     const resource = resources[i];
+        //     const row = document.getElementById(`${resource.name}Row`);
+        //     const commentElement = document.getElementById(`${resource.name}Comment`);
+
+
+        //     const valueElement = document.createElement("div");
+        //     valueElement.id = `${resource.name}_${culture}Value`;
+        //     valueElement.className = `div-table-cell cell-value cell-long`;
+
+        //     const valueTextareaElement = this.#createTextarea(
+        //         resource,
+        //         resource.name,
+        //         "",
+        //         "value",
+        //         culture,
+        //     );
+
+        //     const textareas = Array.from(
+        //         row.querySelectorAll("textarea")
+        //     );
+        //     textareas.push(valueTextareaElement);
+        //     valueElement.appendChild(valueTextareaElement);
+        //     row.insertBefore(
+        //         valueElement,
+        //         commentElement,
+        //     );
+
+        //     this.#addRowEvents(row, textareas);
+        // }
+
+    }
+
     #createTextarea(resourceRow, name, value, type, culture) {
         const textarea = document.createElement("textarea");
         textarea.dataset.name = name;
@@ -202,41 +309,27 @@ export default class TableDrawer {
     }
 
     #addRowEvents(/** @type {HTMLDivElement} **/ rowElement, /** @type {HTMLTextAreaElement[]} **/ textareas) {
-        let empty = true;
 
-        for (const textarea of textareas) {
+        rowElement.addEventListener("input", (e) => {
 
-            textarea.addEventListener("input", () => {
+            if (!(e.target instanceof HTMLTextAreaElement)) {
+                return;
+            }
+
+            const empty = textareas.every(ta => ta.value.length === 0);
+
+            rowElement.classList.toggle("empty-row", empty);
+
+            const maxHeight = Math.max(
+                ...textareas.map(ta => ta.scrollHeight)
+            );
+
+            if (maxHeight > 0) {
                 for (const ta of textareas) {
-                    if (ta.value.length > 0) {
-                        empty = false;
-                        break;
-                    }
+                    ta.style.height = maxHeight + "px";
                 }
-
-                if (empty) {
-                    rowElement.classList.add("empty-row");
-                } else {
-                    rowElement.classList.remove("empty-row");
-                }
-            });
-
-
-
-            textarea.addEventListener("input", () => {
-
-                const heightsInput = textareas.map((ta) => ta.scrollHeight);
-                const maxHeightInput = Math.max(...heightsInput);
-
-                if (maxHeightInput <= 0) { return; }
-
-                for (const ta of textareas) {
-                    ta.style.height = maxHeightInput + "px";
-                }
-            });
-
-        }
-
+            }
+        });
 
         setTimeout(() => {
             const heights = textareas.map((ta) => ta.scrollHeight);
@@ -249,7 +342,5 @@ export default class TableDrawer {
                 textarea.style.height = maxHeight + "px";
             }
         }, 100);
-
-
     }
 }
